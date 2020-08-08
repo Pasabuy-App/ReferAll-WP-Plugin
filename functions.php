@@ -3,7 +3,7 @@
     /*
         Plugin Name: ReferAll WP Plugin
         Plugin URI: http://www.bytescrafter.net/projects/referall
-        Description: Plugin for user Feeds, Activity, Messages, and Many more.
+        Description: Referral or url shortiner plugin for wordpress.
         Version: 0.1.0
         Author: Bytes Crafter
         Author URI:   https://www.bytescrafter.net/about-us

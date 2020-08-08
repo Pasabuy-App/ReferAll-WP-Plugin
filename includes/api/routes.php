@@ -17,14 +17,14 @@
     require plugin_dir_path(__FILE__) . '/v1/users/class-auth.php'; // Example
 	
 	// Init check if USocketNet successfully request from wapi.
-    function coinpress_route()
+    function referall_route()
     {
         // Example
-        register_rest_route( 'coinpress/v1/user', 'auth', array(
+        register_rest_route( 'referall/v1/user', 'auth', array(
             'methods' => 'POST',
-            'callback' => array('DV_Authenticate','initialize'),
+            'callback' => array('RA_Authenticate','listen'),
         ));       
     }
-    add_action( 'rest_api_init', 'coinpress_route' );
+    add_action( 'rest_api_init', 'referall_route' );
 
 ?>
