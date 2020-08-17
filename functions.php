@@ -32,7 +32,9 @@
     define("RA_PLUGIN_URL", plugin_dir_url( __FILE__ ) );
 
     //Important config files and plugin updates.
+    include_once ( RA_PLUGIN_PATH . '/includes/core/source.php' );
     include_once ( RA_PLUGIN_PATH . '/includes/core/config.php' );
+    include_once ( RA_PLUGIN_PATH . '/includes/core/library.php' );
     include_once ( RA_PLUGIN_PATH . '/includes/core/update.php' );
 
      //Make sure to create required mysql tables.
@@ -43,5 +45,3 @@
 
     //Include the REST API of USocketNet to be accessible.
     include_once ( RA_PLUGIN_PATH . '/includes/api/routes.php' );
-
-?>
