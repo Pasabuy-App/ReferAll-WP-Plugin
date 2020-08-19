@@ -20,7 +20,13 @@
 
 	//Revisions CONSTANT
 	define('RA_REVISIONS_TABLE', RA_PREFIX.'revisions');
+	define("RA_REVISIONS_FIELDS", "(revs_type, parent_id, title, info, config_key, config_val, created_by)");
 
 	//Referral CONSTANT
-	define('RA_REFERRAL_TABLE', RA_PREFIX.'referral');
+	define('RA_URLHASH_TABLE', RA_PREFIX.'urlhash');
+	define("RA_URLHASH_FIELDS", "(type, hash, expiry, created_by)");
+
+	//Visits CONSTANT
+	define('RA_VISITS_TABLE', RA_PREFIX.'visits');
+
 

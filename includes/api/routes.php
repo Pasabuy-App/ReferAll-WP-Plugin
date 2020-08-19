@@ -11,15 +11,31 @@
 	*/
 
     //Require the USocketNet class which have the core function of this plguin. 
-    // require plugin_dir_path(__FILE__) . '/v1/users/class-auth.php'; // Example
+    
+    //Url Hashing
+    require plugin_dir_path(__FILE__) . '/v1/referrals/class-create.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/referrals/class-validate.php'; 
+
+
+    require plugin_dir_path(__FILE__) . '/v1/class-globals.php'; // globals
 	
 	// Init check if USocketNet successfully request from wapi.
     function referall_route()
     {
-        // Example
-        // register_rest_route( 'referall/v1/user', 'auth', array(
-        //     'methods' => 'POST',
-        //     'callback' => array('RA_Authenticate','listen'),
-        // ));       
+        /*
+         * REFERRALS RESTAPI
+        */
+            register_rest_route( 'referall/v1/urlhash', 'create', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Referrals_Create','listen'),
+            ));
+
+            register_rest_route( 'referall/v1/urlhash', 'validate', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Validate_Referral','listen'),
+            ));
+            
+
+            
     }
     add_action( 'rest_api_init', 'referall_route' );

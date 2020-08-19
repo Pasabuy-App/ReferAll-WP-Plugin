@@ -10,6 +10,5 @@
      * Data for DataVice config.
     */
 
-	$ra_config_list = "('Encrypt Method', 'Encryption algorithm for encrypting data.', 'encrypt_method', 'AES-256-CBC'),
-	('Unique Hash Generator', 'Algorithm used to generate a random and almost-unique hash.', 'hash_type', 'sha256');
+	$ra_config_list = "('Referral Expiry', 'Default multiplier to get the date expiry of referral.', 'referral_span', '3600');
 	;";

@@ -13,8 +13,9 @@
 	
 		global $wpdb;
 		$tbl_revisions = RA_REVISIONS_TABLE;
-		$tbl_referral = RA_REFERRAL_TABLE;
+		$tbl_urlhash = RA_URLHASH_TABLE;
 		$tbl_configs = RA_CONFIG_TABLE;
+		$tbl_visits = RA_VISITS_TABLE;
 
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_configs'" ) != $tbl_configs) {
 			$sql = "CREATE TABLE `".$tbl_configs."` (";
@@ -50,16 +51,28 @@
 			$result = $wpdb->get_results($sql);
 		}
 
-		//Table creation for referral
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_referral'" ) != $tbl_referral) {
-			$sql = "CREATE TABLE `".$tbl_referral."` (";
+		//Table creation for urlhash
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_urlhash'" ) != $tbl_urlhash) {
+			$sql = "CREATE TABLE `".$tbl_urlhash."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`revs_type` enum('none','referral') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
-				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Parent id of this revision',  ";
-				$sql .= "`code` varchar(16) NOT NULL DEFAULT 0 COMMENT 'Referral unique code on the table',  ";
-				$sql .= "`expiry` datetime DEFAULT NULL COMMENT 'Value of the row key',  ";
-				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this revision',  ";
-				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date this Revision is created.', ";
+				$sql .= "`type` enum('none','registration') NOT NULL DEFAULT 'none' COMMENT 'Type of referral', ";
+				$sql .= "`hash` varchar(8) NOT NULL DEFAULT 0 COMMENT 'Hash of this referral',  ";
+				$sql .= "`expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
+				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";
+				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date this referrral is created.', ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+		}
+
+		//Table creation for visits
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_visits'" ) != $tbl_visits) {
+			$sql = "CREATE TABLE `".$tbl_visits."` (";
+				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Id of urlhash',  ";
+				$sql .= "`client_ip` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Physical address of user who clicked the urlhash',  ";
+				$sql .= "`platform` varchar(30) NOT NULL DEFAULT 0 COMMENT 'OS platform of user device',  ";
+				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date the urlhash is clicked.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
