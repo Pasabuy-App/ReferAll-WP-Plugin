@@ -9,22 +9,22 @@
 		* @version 0.1.0
 		* REST API for creating referrals.
 	*/
-  	class RA_Referrals_Create {
+  	class RA_Coupon_Create {
           public static function listen(){
             return rest_ensure_response( 
-                RA_Referrals_Create::create_referral()
+                RA_Coupon_Create::create_coupon()
             );
           }
     
-        public static function create_referral(){
+        public static function create_coupon(){
             
 			// Initialize WP global variable
             global $wpdb;
             $table_revision = RA_REVISIONS_TABLE;
             $table_revision_fields= RA_REVISIONS_FIELDS;
 
-            $table_urlhash = RA_URLHASH_TABLE;
-            $table_urlhash_fields = RA_URLHASH_FIELDS;
+            $table_coupons = RA_COUPONS_TABLE;
+            $table_coupons_fields = RA_COUPONS_FIELDS;
 
             $plugin = RA_Globals::verify_prerequisites();
             if ($plugin !== true) {
@@ -43,55 +43,61 @@
                 );
             }
 
-            if ( !isset($_POST['exp']) || !isset($_POST['type'])) {
+            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value'])) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown.",
                 );
             }
 
-            if ( empty($_POST['exp']) || empty($_POST['type']) ) {
+            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) ) {
                 return array(
                     "status" => "failed",
                     "message" => "Required fields cannot be empty.",
                 );
             }
 
-            if ( !($_POST['type'] === 'registration') ) {
-                return array(
+            if ( !isset($_POST['exp']) || empty($_POST['exp']) || $_POST['exp'] == "") {
+          
+                $expiration_date = NULL;
+                
+            } else {
+
+                $dt = TP_OrdersByDate::validateDate($_POST['exp']);   
+
+                if ( !$dt ) {
+                    return array(
                             "status" => "failed",
-                            "message" => "Invalid value for  type.",
-                );
+                            "message" => "Expiratation date is not in valid format.",
+                    );
+                }
+
+                $expiration_date = $_POST['exp'];
             }
 
-            $dt = TP_OrdersByDate::validateDate($_POST['exp']);   
-          
-            if ( !$dt ) {
-                return array(
-                        "status" => "failed",
-                        "message" => "Expiratation date is not in valid format.",
-                );
-            }
 
             $wpid = $_POST['wpid'];
 
-            $type = $_POST['type'];
+            $rev_data = array('title' => trim($_POST['title']),
+                              'info'  => trim($_POST['info']),
+                              'value' => trim($_POST['value'])
+            );
 
             $hash = '';
+
+            $revs_type = 'coupon';
         
-            $expiration_date = $_POST['exp'];
-            
-            $wpdb->query("START TRANSACTION");
+            // $wpdb->query("START TRANSACTION");
 
             //Insert into table urlhash
-            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_urlhash` $table_urlhash_fields VALUES ('%s', '%s', '%s', %d)", $type, $hash, $expiration_date, $wpid);
+            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', %d)", $hash, $expiration_date, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
             
             //Get last insert id
             $parent_id = $wpdb->insert_id;
            
-            $update_sql = $wpdb->prepare("UPDATE `$table_urlhash` SET `hash`=concat(
+            $update_sql = $wpdb->prepare("UPDATE `$table_coupons` SET `hash`=concat(
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($parent_id)*4294967296))*36+1, 1),
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
@@ -106,12 +112,14 @@
 
             $update_q = $wpdb->get_row( $update_sql , OBJECT );
 
-            $hash_sql = $wpdb->prepare("SELECT `hash` FROM `$table_urlhash` WHERE `ID` = %d;", $parent_id);
+            foreach ($rev_data as $key => $value) {
+
+                $rev_sql = $wpdb->prepare("INSERT INTO `$table_revision` $table_revision_fields VALUES ('%s', %d, '%s', '%s', %d)", $revs_type, $parent_id, $key, $value, $wpid);
             
-            $select_q = $wpdb->get_row( $hash_sql , OBJECT );
-
-            $short_url = wp_normalize_path(ABSPATH. '/') . $select_q->hash;
-
+                $rev_result = $wpdb->get_row( $rev_sql , OBJECT );
+                
+            }
+            
             if ( $parent_id < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
@@ -124,7 +132,7 @@
 
             return array(
                 "status" => "success",
-                "data" => $short_url,
+                "data" => "Coupon successfully created",
             );
 
 

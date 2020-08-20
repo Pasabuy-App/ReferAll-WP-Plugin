@@ -16,6 +16,7 @@
 		$tbl_urlhash = RA_URLHASH_TABLE;
 		$tbl_configs = RA_CONFIG_TABLE;
 		$tbl_visits = RA_VISITS_TABLE;
+		$tbl_coupons = RA_COUPONS_TABLE;
 
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_configs'" ) != $tbl_configs) {
 			$sql = "CREATE TABLE `".$tbl_configs."` (";
@@ -72,6 +73,19 @@
 				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Id of urlhash',  ";
 				$sql .= "`client_ip` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Physical address of user who clicked the urlhash',  ";
 				$sql .= "`platform` varchar(30) NOT NULL DEFAULT 0 COMMENT 'OS platform of user device',  ";
+				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date the urlhash is clicked.', ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+		}
+
+		//Table creation for coupons
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_coupons'" ) != $tbl_coupons) {
+			$sql = "CREATE TABLE `".$tbl_coupons."` (";
+				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
+				$sql .= "`expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
+				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";
 				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date the urlhash is clicked.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";

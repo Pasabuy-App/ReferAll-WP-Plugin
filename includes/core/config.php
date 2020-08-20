@@ -20,7 +20,7 @@
 
 	//Revisions CONSTANT
 	define('RA_REVISIONS_TABLE', RA_PREFIX.'revisions');
-	define("RA_REVISIONS_FIELDS", "(revs_type, parent_id, title, info, config_key, config_val, created_by)");
+	define("RA_REVISIONS_FIELDS", "(revs_type, parent_id, child_key, child_val, created_by)");
 
 	//Referral CONSTANT
 	define('RA_URLHASH_TABLE', RA_PREFIX.'urlhash');
@@ -30,4 +30,7 @@
 	define('RA_VISITS_TABLE', RA_PREFIX.'visits');
 	define("RA_VISITS_FIELDS", "(parent_id, client_ip, platform)");
 
+	//Coupons CONSTANT
+	define('RA_COUPONS_TABLE', RA_PREFIX.'coupons');
+	define("RA_COUPONS_FIELDS", "(hash, expiry, created_by)");
 

@@ -19,7 +19,8 @@
     //Visits
     require plugin_dir_path(__FILE__) . '/v1/visits/class-insert.php'; 
 
-
+    //Coupons
+    require plugin_dir_path(__FILE__) . '/v1/coupons/class-create.php'; 
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php'; // globals
 	
@@ -40,12 +41,20 @@
             ));
 
         /*
-         * REFERRALS RESTAPI
+         * VISITS RESTAPI
         */
             register_rest_route( 'referall/v1/visits', 'insert', array(
                 'methods' => 'POST',
                 'callback' => array('RA_Url_Visits','listen'),
             ));
+            
+        /*
+         * COUPONS RESTAPI
+        */
+        register_rest_route( 'referall/v1/coupons', 'create', array(
+            'methods' => 'POST',
+            'callback' => array('RA_Coupon_Create','listen'),
+        ));
 
             
     }
