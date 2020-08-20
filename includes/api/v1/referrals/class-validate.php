@@ -64,32 +64,36 @@
             //                 "message" => "Invalid value for  type.",
             //     );
             // }
+         
 
             $wpid = $_POST['wpid'];
 
             $hash = $_POST['hash'];
 
-            $date = date('Y-m-d H:i:s');
+            $date = RA_Globals:: get_user_date($wpid);
             
             $hash_sql = $wpdb->prepare("SELECT `id`, `expiry` FROM `$table_urlhash` WHERE `hash` = '%s';", $hash);
             
             $select_q = $wpdb->get_row( $hash_sql , OBJECT );
-            $date_expiry = date('Y-m-d H:i:s', strtotime($select_q->expiry));
-            return $date;
-            if ($date_expiry > $date) {
+            $date_expiry = strtotime($select_q->expiry);
+            $now = strtotime($date);
+
+            if (!$select_q) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This url does not exists",
+                );
+            }
+            
+            if ( $date_expiry < $now ) {
                 return array(
                     "status" => "failed",
                     "message" => "This url is already expired",
                 );
             }
 
+            //Pending
 
-            return 'test';
-
-            return array(
-                "status" => "success",
-                "data" => $short_url,
-            );
 
 
        

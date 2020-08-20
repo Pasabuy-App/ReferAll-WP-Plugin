@@ -16,6 +16,10 @@
     require plugin_dir_path(__FILE__) . '/v1/referrals/class-create.php'; 
     require plugin_dir_path(__FILE__) . '/v1/referrals/class-validate.php'; 
 
+    //Visits
+    require plugin_dir_path(__FILE__) . '/v1/visits/class-insert.php'; 
+
+
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php'; // globals
 	
@@ -34,7 +38,14 @@
                 'methods' => 'POST',
                 'callback' => array('RA_Validate_Referral','listen'),
             ));
-            
+
+        /*
+         * REFERRALS RESTAPI
+        */
+            register_rest_route( 'referall/v1/visits', 'insert', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Url_Visits','listen'),
+            ));
 
             
     }

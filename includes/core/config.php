@@ -28,5 +28,6 @@
 
 	//Visits CONSTANT
 	define('RA_VISITS_TABLE', RA_PREFIX.'visits');
+	define("RA_VISITS_FIELDS", "(parent_id, client_ip, platform)");
 
 
