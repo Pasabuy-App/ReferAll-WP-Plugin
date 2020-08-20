@@ -71,6 +71,67 @@
             }
         }
 
+        public static function custom_update($parent_id, $wpid, $rev_type, $parent_table, $revisions_table, $data, $where){
+           
+            global $wpdb;
+
+            $date = DV_Globals:: date_stamp();
+
+            if ( ! is_array( $data ) || ! is_array( $where ) ) {
+                return false;
+            }
+            
+            //Initialize empty array
+            $fields     = array();
+            $insert_fields = array();
+            $insert_values = array();
+            $conditions = array();
+            $values     = array();
+
+            //Remove null data
+            foreach ( $data as $field => $value ) {
+                if ( is_null( $value ) ) {
+                    unset($data[$field]);
+                    continue;
+                }
+            }
+            $wpdb->query("START TRANSACTION");
+            //Insert into revisions table
+            foreach ($data as $key => $value) {
+                $insert_result = $wpdb->query("INSERT INTO $revisions_table (`revs_type`, `parent_id`, `child_key`, `child_val`, `created_by`, `date_created`) VALUES ('$rev_type', '$parent_id', '$key', '$value', '$wpid', '$date')");
+                if ($insert_result < 1) {
+                    $wpdb->query("ROLLBACK");
+                    return false;
+                }
+                $insert_values[$key] = $wpdb->insert_id; 
+            }
+
+            //Get all `where` conditions
+            foreach ( $where as $field => $value ) {
+                if ( is_null( $value ) ) {
+                    $conditions[] = "`$field` IS NULL";
+                    continue;
+                }
+         
+                $conditions[] = "`$field` = " . $value;
+            }
+            
+            //Make fields a comma seperated values
+            $conditions = implode( ' AND ', $conditions );
+            
+            foreach ($insert_values as $key => $value) {
+                $result = $wpdb->query("UPDATE $parent_table SET $key = $value");
+                if ($result < 1) {
+                    $wpdb->query("ROLLBACK");
+                    return false;
+                }
+            }
+
+            $wpdb->query("COMMIT");
+            return true;
+            
+        }
+
 
 		
 	}

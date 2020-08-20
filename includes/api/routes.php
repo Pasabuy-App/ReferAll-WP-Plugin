@@ -21,6 +21,9 @@
 
     //Coupons
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-create.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/coupons/class-validate.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/coupons/class-delete.php'; 
+
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php'; // globals
 	
@@ -51,10 +54,20 @@
         /*
          * COUPONS RESTAPI
         */
-        register_rest_route( 'referall/v1/coupons', 'create', array(
-            'methods' => 'POST',
-            'callback' => array('RA_Coupon_Create','listen'),
-        ));
+            register_rest_route( 'referall/v1/coupons', 'create', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Coupon_Create','listen'),
+            ));
+
+            register_rest_route( 'referall/v1/coupons', 'validate', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Validate_Coupon','listen'),
+            ));
+
+            register_rest_route( 'referall/v1/coupons', 'delete', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Delete_Coupon','listen'),
+            ));
 
             
     }

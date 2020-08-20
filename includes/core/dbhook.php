@@ -41,7 +41,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_revisions'" ) != $tbl_revisions) {
 			$sql = "CREATE TABLE `".$tbl_revisions."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`revs_type` enum('none','referral') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
+				$sql .= "`revs_type` enum('none','referral','coupon') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
 				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Parent id of this revision',  ";
 				$sql .= "`child_key` varchar(20) NOT NULL DEFAULT 0 COMMENT 'Column name on the table',  ";
 				$sql .= "`child_val` varchar(50) NOT NULL DEFAULT 0 COMMENT 'Value of the row key',  ";

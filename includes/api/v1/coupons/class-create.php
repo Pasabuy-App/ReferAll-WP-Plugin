@@ -73,6 +73,7 @@
                 }
 
                 $expiration_date = $_POST['exp'];
+                
             }
 
 
@@ -80,23 +81,29 @@
 
             $rev_data = array('title' => trim($_POST['title']),
                               'info'  => trim($_POST['info']),
-                              'value' => trim($_POST['value'])
+                              'value' => trim($_POST['value']),
+                              'status'=> 1
             );
 
             $hash = '';
 
             $revs_type = 'coupon';
         
-            // $wpdb->query("START TRANSACTION");
-
-            //Insert into table urlhash
+            $wpdb->query("START TRANSACTION");
+           
             $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', %d)", $hash, $expiration_date, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
             
             //Get last insert id
             $parent_id = $wpdb->insert_id;
-           
+
+            if ( empty($expiration_date) ) {
+                $wpdb->query("UPDATE `$table_coupons` SET `expiry` = NULL WHERE `id` = $parent_id");
+            } else {
+                $wpdb->query("UPDATE `$table_coupons` SET `expiry` = '$expiration_date' WHERE `id` = $parent_id");
+            }
+            
             $update_sql = $wpdb->prepare("UPDATE `$table_coupons` SET `hash`=concat(
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($parent_id)*4294967296))*36+1, 1),
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
@@ -117,6 +124,14 @@
                 $rev_sql = $wpdb->prepare("INSERT INTO `$table_revision` $table_revision_fields VALUES ('%s', %d, '%s', '%s', %d)", $revs_type, $parent_id, $key, $value, $wpid);
             
                 $rev_result = $wpdb->get_row( $rev_sql , OBJECT );
+
+                if ($wpdb->insert_id < 1) {
+                    $wpdb->query("ROLLBACK");
+                    return array(
+                        "status" => "error",
+                        "message" => "An error occured while submitting data to the server",
+                    );
+                }
                 
             }
             
