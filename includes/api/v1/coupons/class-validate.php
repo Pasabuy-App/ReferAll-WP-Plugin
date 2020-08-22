@@ -89,14 +89,21 @@
             
             $rev_prep = $wpdb->prepare("SELECT cp.id, cp.`expiry`,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'title' AND parent_id = $select_q->id) as name,
-                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id) as info,
-                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id) as value,
-                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'status' AND parent_id = $select_q->id) as status
+                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id)) as info,
+                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id)) as value,
+                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'status' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'status' AND parent_id = $select_q->id)) as status
             FROM `$table_coupons` cp
             INNER JOIN `$table_revision` rev ON rev.parent_id = cp.id
             WHERE cp.`id` = %d;", $select_q->id);
             
             $coupon = $wpdb->get_row( $rev_prep , OBJECT );
+            
+            if ($coupon->status == 0) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This coupon is currently deactivated",
+                );
+            }
 
             return $coupon;
             //Pending

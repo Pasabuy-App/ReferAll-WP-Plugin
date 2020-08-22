@@ -76,7 +76,6 @@
                 
             }
 
-
             $wpid = $_POST['wpid'];
 
             $rev_data = array('title' => trim($_POST['title']),
@@ -149,11 +148,8 @@
                 "status" => "success",
                 "data" => "Coupon successfully created",
             );
-
-
        
         }
-
 
         public static function validateDate($date, $format = 'Y-m-d h:i:s')
         {

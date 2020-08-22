@@ -9,14 +9,14 @@
 		* @version 0.1.0
 		* REST API for creating referrals.
 	*/
-  	class RA_Referrals_Create {
+  	class RA_Urlhash_Create {
           public static function listen(){
             return rest_ensure_response( 
-                RA_Referrals_Create::create_referral()
+                RA_Urlhash_Create::create_urlhash()
             );
           }
     
-        public static function create_referral(){
+        public static function create_urlhash(){
             
 			// Initialize WP global variable
             global $wpdb;
@@ -43,14 +43,14 @@
                 );
             }
 
-            if ( !isset($_POST['exp']) || !isset($_POST['type'])) {
+            if ( !isset($_POST['type']) ) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown.",
                 );
             }
 
-            if ( empty($_POST['exp']) || empty($_POST['type']) ) {
+            if ( empty($_POST['type']) ) {
                 return array(
                     "status" => "failed",
                     "message" => "Required fields cannot be empty.",
@@ -64,14 +64,26 @@
                 );
             }
 
-            $dt = TP_OrdersByDate::validateDate($_POST['exp']);   
+            if ( isset($_POST['exp']) || !empty($_POST['exp']) ) {
+                
+                $expiration_date = $_POST['exp'];
+
+                $dt = TP_OrdersByDate::validateDate($_POST['exp']);   
           
-            if ( !$dt ) {
-                return array(
-                        "status" => "failed",
-                        "message" => "Expiratation date is not in valid format.",
-                );
+                if ( !$dt ) {
+                    return array(
+                            "status" => "failed",
+                            "message" => "Expiratation date is not in valid format.",
+                    );
+                }
+
+            } else {
+
+                $expiration_date = NULL;
+
             }
+
+            
 
             $wpid = $_POST['wpid'];
 
@@ -79,17 +91,27 @@
 
             $hash = '';
         
-            $expiration_date = $_POST['exp'];
-            
             $wpdb->query("START TRANSACTION");
+
+            $revs_type = 'urlhash';
 
             //Insert into table urlhash
             $insert_sql =  $wpdb->prepare("INSERT INTO `$table_urlhash` $table_urlhash_fields VALUES ('%s', '%s', '%s', %d)", $type, $hash, $expiration_date, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
-            
+
             //Get last insert id
             $parent_id = $wpdb->insert_id;
+
+            if ( empty($expiration_date) ) {
+                $wpdb->query("UPDATE `$table_urlhash` SET `expiry` = NULL WHERE `id` = $parent_id");
+            } else {
+                $wpdb->query("UPDATE `$table_urlhash` SET `expiry` = '$expiration_date' WHERE `id` = $parent_id");
+            }
+            
+            $rev_sql = $wpdb->prepare("INSERT INTO `$table_revision` $table_revision_fields VALUES ('%s', %d, '%s', %d, %d)", $revs_type, $parent_id, 'status', 1, $wpid);
+            
+            $rev_result = $wpdb->get_row( $rev_sql , OBJECT );
            
             $update_sql = $wpdb->prepare("UPDATE `$table_urlhash` SET `hash`=concat(
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($parent_id)*4294967296))*36+1, 1),
@@ -126,8 +148,6 @@
                 "status" => "success",
                 "data" => $short_url,
             );
-
-
        
         }
 

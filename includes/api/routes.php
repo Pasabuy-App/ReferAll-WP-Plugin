@@ -13,11 +13,13 @@
     //Require the USocketNet class which have the core function of this plguin. 
     
     //Url Hashing
-    require plugin_dir_path(__FILE__) . '/v1/referrals/class-create.php'; 
-    require plugin_dir_path(__FILE__) . '/v1/referrals/class-validate.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/urlhash/class-create.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/urlhash/class-validate.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/urlhash/class-delete.php'; 
 
     //Visits
     require plugin_dir_path(__FILE__) . '/v1/visits/class-insert.php'; 
+  
 
     //Coupons
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-create.php'; 
@@ -31,16 +33,21 @@
     function referall_route()
     {
         /*
-         * REFERRALS RESTAPI
+         * URLHASH RESTAPI
         */
             register_rest_route( 'referall/v1/urlhash', 'create', array(
                 'methods' => 'POST',
-                'callback' => array('RA_Referrals_Create','listen'),
+                'callback' => array('RA_Urlhash_Create','listen'),
             ));
 
             register_rest_route( 'referall/v1/urlhash', 'validate', array(
                 'methods' => 'POST',
-                'callback' => array('RA_Validate_Referral','listen'),
+                'callback' => array('RA_Validate_Urlhash','listen'),
+            ));
+
+            register_rest_route( 'referall/v1/urlhash', 'delete', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Delete_Urlhash','listen'),
             ));
 
         /*

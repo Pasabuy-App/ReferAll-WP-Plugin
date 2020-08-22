@@ -9,11 +9,11 @@
 		* @version 0.1.0
 		* REST API for creating referrals.
 	*/
-  	class RA_Validate_Referral {
+  	class RA_Validate_Urlhash {
 
           public static function listen(){
             return rest_ensure_response( 
-                RA_Validate_Referral::validate_referral()
+                RA_Validate_Urlhash::validate_referral()
             );
           }
     
@@ -72,11 +72,14 @@
 
             $date = RA_Globals:: get_user_date($wpid);
             
-            $hash_sql = $wpdb->prepare("SELECT `id`, `expiry` FROM `$table_urlhash` WHERE `hash` = '%s';", $hash);
+            $hash_sql = $wpdb->prepare("SELECT `type`, url.`id`, url.`expiry`,
+            (SELECT `child_val` FROM ra_revisions WHERE revs_type = 'urlhash' AND child_key = 'status' AND parent_id = url.ID
+                AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'urlhash' AND child_key = 'status' AND parent_id = url.ID)) as status
+             FROM `$table_urlhash` url
+             INNER JOIN $table_revision rev ON rev.parent_id = url.id
+             WHERE `hash` = '%s';", $hash);
             
             $select_q = $wpdb->get_row( $hash_sql , OBJECT );
-            $date_expiry = strtotime($select_q->expiry);
-            $now = strtotime($date);
 
             if (!$select_q) {
                 return array(
@@ -84,7 +87,17 @@
                     "message" => "This url does not exists",
                 );
             }
+
+            if ($select_q->status == 0) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This url is currently inactive",
+                );
+            }
             
+            $date_expiry = strtotime($select_q->expiry);
+            $now = strtotime($date);
+                    
             if ( $date_expiry < $now ) {
                 return array(
                     "status" => "failed",
@@ -92,8 +105,17 @@
                 );
             }
 
-            //Pending
+            if ($select_q->type == 'registration') {
 
+                //PENDING : Do something to the creator of this urlhash.
+                //Possible options: Reward points, Discounts, Coupons, etc.
+
+                return array(
+                    "status" => "success",
+                    "data" =>  wp_normalize_path(ABSPATH. '/') . 'wp-json/datavice/v1/user/signup'
+                );
+           
+            }
 
 
        
