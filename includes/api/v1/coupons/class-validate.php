@@ -88,7 +88,7 @@
             } 
             
             $rev_prep = $wpdb->prepare("SELECT cp.id, cp.`expiry`,
-                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'title' AND parent_id = $select_q->id) as name,
+                (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'title' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'title' AND parent_id = $select_q->id)) as name,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id)) as info,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id)) as value,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'status' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'status' AND parent_id = $select_q->id)) as status
@@ -107,9 +107,6 @@
 
             return $coupon;
             //Pending
-
-
-
        
         }
 
