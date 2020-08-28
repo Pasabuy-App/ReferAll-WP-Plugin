@@ -83,7 +83,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_coupons'" ) != $tbl_coupons) {
 			$sql = "CREATE TABLE `".$tbl_coupons."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
+				$sql .= "`hash_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
 				$sql .= "`expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
 				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";
 				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date the urlhash is clicked.', ";

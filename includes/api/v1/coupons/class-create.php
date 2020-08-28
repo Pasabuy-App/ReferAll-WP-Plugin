@@ -43,19 +43,29 @@
                 );
             }
 
-            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value'])) {
+            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value']) || !isset($_POST['type']) ) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown.",
                 );
             }
 
-            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) ) {
+            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) || empty($_POST['type']) ) {
                 return array(
                     "status" => "failed",
                     "message" => "Required fields cannot be empty.",
                 );
             }
+
+            if ($_POST['type'] !== 'free_ship' && $_POST['type'] !== 'discount' && $_POST['type'] !== 'min_spend' && $_POST['type'] !== 'less'  ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Invalid type of coupons.",
+                );
+            }
+
+            
+
 
             if ( !isset($_POST['exp']) || empty($_POST['exp']) || $_POST['exp'] == "") {
           
@@ -63,12 +73,12 @@
                 
             } else {
 
-                $dt = TP_OrdersByDate::validateDate($_POST['exp']);   
+                $dt = self::validateDate($_POST['exp']);   
 
                 if ( !$dt ) {
                     return array(
-                            "status" => "failed",
-                            "message" => "Expiratation date is not in valid format.",
+                        "status" => "failed",
+                        "message" => "Expiratation date is not in valid format.",
                     );
                 }
 
@@ -77,6 +87,8 @@
             }
 
             $wpid = $_POST['wpid'];
+            $limit = $_POST['limit'];
+            $type = $_POST['type'];
 
             $rev_data = array('title' => trim($_POST['title']),
                               'info'  => trim($_POST['info']),
@@ -90,7 +102,7 @@
         
             $wpdb->query("START TRANSACTION");
            
-            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', %d)", $hash, $expiration_date, $wpid);
+             $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $type, $limit, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
             
@@ -99,22 +111,13 @@
 
             if ( empty($expiration_date) ) {
                 $wpdb->query("UPDATE `$table_coupons` SET `expiry` = NULL WHERE `id` = $parent_id");
+
             } else {
                 $wpdb->query("UPDATE `$table_coupons` SET `expiry` = '$expiration_date' WHERE `id` = $parent_id");
+
             }
             
-            $update_sql = $wpdb->prepare("UPDATE `$table_coupons` SET `hash`=concat(
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($parent_id)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-                substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed)*36+1, 1)
-              )
-              WHERE id = %d;", $parent_id);
+            $update_sql = $wpdb->prepare("UPDATE `$table_coupons` SET `hash_id`= SHA2( '$parent_id', 256) WHERE id = %d;", $parent_id);
 
             $update_q = $wpdb->get_row( $update_sql , OBJECT );
 
@@ -131,7 +134,6 @@
                         "message" => "An error occured while submitting data to the server",
                     );
                 }
-                
             }
             
             if ( $parent_id < 1 ) {

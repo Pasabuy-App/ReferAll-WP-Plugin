@@ -12,8 +12,8 @@
   	class RA_Validate_Coupon {
 
           public static function listen(){
-            return rest_ensure_response( 
-                RA_Validate_Coupon::validate_coupon()
+            return ( 
+                self::validate_coupon()
             );
           }
     
@@ -44,14 +44,14 @@
                 );
             }
 
-            if ( !isset($_POST['hash']) ) {
+            if ( !isset($_POST['copid']) ) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown.",
                 );
             }
 
-            if ( empty($_POST['hash']) ) {
+            if ( empty($_POST['copid']) ) {
                 return array(
                     "status" => "failed",
                     "message" => "Required fields cannot be empty.",
@@ -60,19 +60,19 @@
 
             $wpid = $_POST['wpid'];
 
-            $hash = $_POST['hash'];
+            $hash = $_POST['copid'];
 
             $date = RA_Globals:: get_user_date($wpid);
             
-            $hash_sql = $wpdb->prepare("SELECT `id`, `expiry` FROM `$table_coupons` WHERE `hash` = '%s';", $hash);
+             $hash_sql = $wpdb->prepare("SELECT `id`, `expiry` FROM `$table_coupons` WHERE `hash_id` = '%s';", $hash);
             
-            $select_q = $wpdb->get_row( $hash_sql , OBJECT );
+             $select_q = $wpdb->get_row( $hash_sql , OBJECT );
             // return $select_q;
 
             if (!$select_q) {
                 return array(
-                    "status" => "failed",
-                    "message" => "This coupon does not exists",
+                    "status" => "unknown",
+                    "status" => "Please contact your administrator. Coupon id does not match!",
                 );
             }
             
@@ -87,7 +87,16 @@
                 }
             } 
             
-            $rev_prep = $wpdb->prepare("SELECT cp.id, cp.`expiry`,
+             $rev_prep = $wpdb->prepare("SELECT cp.hash_id as ID, cp.`expiry`,
+                cp.type,
+                COALESCE(cp.limit - (
+                    SELECT
+                        COUNT(t1.`status`) as `used`
+                    FROM
+                        mp_orders t1
+                        LEFT JOIN ra_transaction t2 ON  t1.ID = t2.order_id
+                        WHERE t1.`status` = 'delivered' AND t1.status != 'canceled' AND t2.coup_id = cp.hash_id
+                )) as `limit`,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'title' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'title' AND parent_id = $select_q->id)) as name,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'info' AND parent_id = $select_q->id)) as info,
                 (SELECT `child_val` FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id AND id = (SELECT MAX(id) FROM $table_revision WHERE revs_type = 'coupon' AND child_key = 'value' AND parent_id = $select_q->id)) as value,
@@ -105,11 +114,16 @@
                 );
             }
 
-            return $coupon;
-            //Pending
-       
+            if ($coupon->limit < 1) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This coupon is already used up",
+                );
+            }
+
+            return array(
+                "status" => "success",
+                "data" => $coupon
+            );
         }
-
-
-
     }

@@ -19,7 +19,7 @@
             return true;
 
         }
-
+ 
         public static function get_timezone($wpid){
             global $wpdb;
 
