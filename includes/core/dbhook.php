@@ -17,6 +17,7 @@
 		$tbl_configs = RA_CONFIG_TABLE;
 		$tbl_visits = RA_VISITS_TABLE;
 		$tbl_coupons = RA_COUPONS_TABLE;
+		$tbl_transaction = RA_TRANSACTION;
 
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_configs'" ) != $tbl_configs) {
 			$sql = "CREATE TABLE `".$tbl_configs."` (";
@@ -83,10 +84,27 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_coupons'" ) != $tbl_coupons) {
 			$sql = "CREATE TABLE `".$tbl_coupons."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
-				$sql .= "`expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
-				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";
+				$sql .= " `hash_id` varchar(255) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
+				$sql .= " `expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
+				$sql .= " `type` enum('none','free_ship','discount','min_spend','less') NOT NULL DEFAULT 'none' COMMENT 'Type of coupons',  ";
+				$sql .= "  `limit` mediumint(9) NOT NULL COMMENT 'Limit of couipons',  ";
+				$sql .= " `created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";
 				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date the urlhash is clicked.', ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+		}
+
+
+		//Table creation for coupons
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_transaction'" ) != $tbl_transaction) {
+			$sql = "CREATE TABLE `".$tbl_transaction."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hash_id` varchar(255) NOT NULL COMMENT 'hash id',  ";
+				$sql .= " `coup_id` varchar(255) NOT NULL COMMENT 'Coupon id',  ";
+				$sql .= " `order_id` bigint(20) NOT NULL COMMENT 'Order Id',  ";
+				$sql .= " `created_by` bigint(20) NOT NULL COMMENT 'The one who create transaction',  ";
+				$sql .= " `date_created` datetime DEFAULT current_timestamp() COMMENT 'Date created',  ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);

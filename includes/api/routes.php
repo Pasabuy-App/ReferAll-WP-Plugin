@@ -25,6 +25,7 @@
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-create.php'; 
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-validate.php'; 
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-delete.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/coupons/class-consume.php'; 
 
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php'; // globals
@@ -74,6 +75,11 @@
             register_rest_route( 'referall/v1/coupons', 'delete', array(
                 'methods' => 'POST',
                 'callback' => array('RA_Delete_Coupon','listen'),
+            ));
+
+            register_rest_route( 'referall/v1/coupons', 'consume', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Coupon_Consume','listen'),
             ));
 
             
