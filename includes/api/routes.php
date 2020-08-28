@@ -20,12 +20,13 @@
     //Visits
     require plugin_dir_path(__FILE__) . '/v1/visits/class-insert.php'; 
   
-
     //Coupons
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-create.php'; 
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-validate.php'; 
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-delete.php'; 
     require plugin_dir_path(__FILE__) . '/v1/coupons/class-consume.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/coupons/class-listing.php'; 
+    require plugin_dir_path(__FILE__) . '/v1/coupons/class-update.php'; 
 
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php'; // globals
@@ -81,6 +82,17 @@
                 'methods' => 'POST',
                 'callback' => array('RA_Coupon_Consume','listen'),
             ));
+
+            register_rest_route( 'referall/v1/coupons', 'list', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Listing_Coupon','listen'),
+            ));
+
+            register_rest_route( 'referall/v1/coupons', 'update', array(
+                'methods' => 'POST',
+                'callback' => array('RA_Update_Coupons','listen'),
+            ));
+
 
             
     }
