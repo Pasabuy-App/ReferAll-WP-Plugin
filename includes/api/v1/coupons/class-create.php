@@ -102,7 +102,7 @@
         
             $wpdb->query("START TRANSACTION");
            
-             $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $type, $limit, $wpid);
+            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $type, $limit, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
             
