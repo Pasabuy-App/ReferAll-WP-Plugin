@@ -58,33 +58,12 @@
                     "message" => "Required fields cannot be empty.",
                 );
             }
-/**
-            if ( !isset($_POST['exp']) || empty($_POST['exp']) || $_POST['exp'] == "") {
-          
-                $expiration_date = NULL;
-                
-            } else {
 
-                $dt = self::validateDate($_POST['exp']);   
-
-                if ( !$dt ) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "Expiratation date is not in valid format.",
-                    );
-                }
-
-                $expiration_date = $_POST['exp'];
-  
-            }
- */
             $wpid = $_POST['wpid'];
             
-            $hash = '';
+            $copid = $_POST['copid'];
 
             $revs_type = 'coupon';
-        
-
 
             isset($_POST['type'])? $t1 = $_POST['type']: $t1 = NULL;
             isset($_POST['limit'])? $t2 = $_POST['limit']: $t2 = NULL;
@@ -96,46 +75,96 @@
 
             $user = self::catch_post();
 
+            $rev_data = array(
+                "title"  => $user['title'],
+                "info"   => $user['info'],
+                "value"  => $user['value'],
+                "status" => 1
+            );
+
             $wpdb->query("START TRANSACTION");
           
-
-            $wpdb->query($wpdb->prepare( "UPDATE `$table_coupons` SET  `limit` = %d, `type` = %s, `expiry` = %s WHERE ID = %s ",   ));
-
-
-
-
-
-
-
-
-
-           
-            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $type, $limit, $wpid);
-
-            $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
-            
-            //Get last insert id
-            $parent_id = $wpdb->insert_id;
-
-            if ( empty($expiration_date) ) {
-                $wpdb->query("UPDATE `$table_coupons` SET `expiry` = NULL WHERE `id` = $parent_id");
-
-            } else {
-                $wpdb->query("UPDATE `$table_coupons` SET `expiry` = '$expiration_date' WHERE `id` = $parent_id");
-
+            $validate_id = $wpdb->get_row($wpdb->prepare(" SELECT  hash_id  FROM ra_coupons WHERE hash_id = '%s' ", $copid ));
+            if ($validate_id !== $copid) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Invalid coupon id"
+                );
             }
-            
-            $update_sql = $wpdb->prepare("UPDATE `$table_coupons` SET `hash_id`= SHA2( '$parent_id', 256) WHERE id = %d;", $parent_id);
+            // update type of coupon
+            if (isset($_POST['type'])) {
+                if ($type !== NULL) {
 
-            $update_q = $wpdb->get_row( $update_sql , OBJECT );
+                    if ($_POST['type'] !== 'free_ship' && $_POST['type'] !== 'discount' && $_POST['type'] !== 'min_spend' && $_POST['type'] !== 'less'  ) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "Invalid type of coupons.",
+                        );
+                    }
+        
+                    $update_type = $wpdb->query($wpdb->prepare("UPDATE ra_coupons `type` = '%s' WHERE hash_id = '%s' ", $type, ));
+                    
+                    if ($update_type < 1) {
+                        $wpdb->query("ROLLBACK");
+                        return array(
+                            "status" => "failed",
+                            "message" => "An error occurred while submitting data to server.",
+                        );
+                    }
+                }
+            }
+            // Update limit of coupon
+            if (isset($_POST['limit'])) {
+                if ($limit !== NULL) {
+                    if (!is_numeric($limit)) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "Invalid value of limit.",
+                        );
+                    }
+                    $update_limit = $wpdb->query($wpdb->prepare("UPDATE ra_coupons `limit` = '%s' WHERE hash_id = '%s' ", $limit, ));
+
+                    
+                    if ($update_limit < 1) {
+                        $wpdb->query("ROLLBACK");
+                        return array(
+                            "status" => "failed",
+                            "message" => "An error occurred while submitting data to server.",
+                        );
+                    }
+                }
+            }
+            // Update expiry of coupon
+            if (isset($_POST['expiry'])) {
+                if ($expiry !== NULL) {
+
+                    $dt = self::validateDate($expiry);   
+        
+                    if ( !$dt ) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "Expiratation date is not in valid format.",
+                        );
+                    }
+                    
+                    $update_expiry = $wpdb->query($wpdb->prepare("UPDATE ra_coupons `expiry` = '%s' WHERE hash_id = '%s' ", $expiry, ));
+                    if ($update_expiry < 1) {
+                        $wpdb->query("ROLLBACK");
+                        return array(
+                            "status" => "failed",
+                            "message" => "An error occurred while submitting data to server.",
+                        );
+                    }
+                }
+            }
 
             foreach ($rev_data as $key => $value) {
 
                 $rev_sql = $wpdb->prepare("INSERT INTO `$table_revision` $table_revision_fields VALUES ('%s', %d, '%s', '%s', %d)", $revs_type, $parent_id, $key, $value, $wpid);
             
-                $rev_result = $wpdb->get_row( $rev_sql , OBJECT );
+                $rev_result = $wpdb->query( $rev_sql , OBJECT );
 
-                if ($wpdb->insert_id < 1) {
+                if (!$rev_result) {
                     $wpdb->query("ROLLBACK");
                     return array(
                         "status" => "error",
@@ -144,14 +173,6 @@
                 }
             }
             
-            if ( $parent_id < 1 ) {
-                $wpdb->query("ROLLBACK");
-                return array(
-                    "status" => "error",
-                    "message" => "An error occured while submitting data to the server",
-                );
-            }
-
             $wpdb->query("COMMIT");
 
             return array(
