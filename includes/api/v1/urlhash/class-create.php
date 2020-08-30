@@ -132,22 +132,25 @@
             
             $select_q = $wpdb->get_row( $hash_sql , OBJECT );
 
-            $short_url = wp_normalize_path(ABSPATH. '/') . $select_q->hash;
-
+            // $short_url = wp_normalize_path(ABSPATH. '/') . $select_q->hash;
+            $short_url = get_site_url().'/'. $select_q->hash;
+            
             if ( $parent_id < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status" => "error",
                     "message" => "An error occured while submitting data to the server",
                 );
+
+            }else{
+                $wpdb->query("COMMIT");
+
+                return array(
+                    "status" => "success",
+                    "data" => $short_url,
+                );
             }
 
-            $wpdb->query("COMMIT");
-
-            return array(
-                "status" => "success",
-                "data" => $short_url,
-            );
        
         }
 

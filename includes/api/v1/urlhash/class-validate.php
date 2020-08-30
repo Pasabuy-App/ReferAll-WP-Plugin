@@ -36,13 +36,13 @@
                 );
             }
 
-			if (DV_Verification::is_verified() == false) {
+			// if (DV_Verification::is_verified() == false) {
                 
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues.",
-                );
-            }
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues.",
+            //     );
+            // }
 
             // if ( !isset($_POST['exp']) || !isset($_POST['type'])) {
             //     return array(
@@ -95,18 +95,18 @@
                 );
             }
             
-            $date_expiry = strtotime($select_q->expiry);
-            $now = strtotime($date);
+            // $date_expiry = strtotime($select_q->expiry);
+            // $now = strtotime($date);
                     
-            if ( $date_expiry < $now ) {
-                return array(
-                    "status" => "failed",
-                    "message" => "This url is already expired",
-                );
-            }
+            // if ( $date_expiry < $now ) {
+            //     return array(
+            //         "status" => "failed",
+            //         "message" => "This url is already expired",
+            //     );
+            // }
 
             if ($select_q->type == 'registration') {
-
+ 
                 //PENDING : Do something to the creator of this urlhash.
                 //Possible options: Reward points, Discounts, Coupons, etc.
 
@@ -114,7 +114,6 @@
                     "status" => "success",
                     "data" =>  wp_normalize_path(ABSPATH. '/') . 'wp-json/datavice/v1/user/signup'
                 );
-           
             }
 
 
