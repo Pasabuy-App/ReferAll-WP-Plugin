@@ -36,34 +36,34 @@
                 );
             }
 
-			// if (DV_Verification::is_verified() == false) {
+			if (DV_Verification::is_verified() == false) {
                 
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues.",
-            //     );
-            // }
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues.",
+                );
+            }
 
-            // if ( !isset($_POST['exp']) || !isset($_POST['type'])) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Request unknown.",
-            //     );
-            // }
+            if ( !isset($_POST['exp']) || !isset($_POST['type'])) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Request unknown.",
+                );
+            }
 
-            // if ( empty($_POST['exp']) || empty($_POST['type']) ) {
-            //     return array(
-            //         "status" => "failed",
-            //         "message" => "Required fields cannot be empty.",
-            //     );
-            // }
+            if ( empty($_POST['exp']) || empty($_POST['type']) ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Required fields cannot be empty.",
+                );
+            }
 
-            // if ( !($_POST['type'] === 'registration') ) {
-            //     return array(
-            //                 "status" => "failed",
-            //                 "message" => "Invalid value for  type.",
-            //     );
-            // }
+            if ( !($_POST['type'] === 'registration') ) {
+                return array(
+                            "status" => "failed",
+                            "message" => "Invalid value for  type.",
+                );
+            }
          
 
             $wpid = $_POST['wpid'];
@@ -95,15 +95,15 @@
                 );
             }
             
-            // $date_expiry = strtotime($select_q->expiry);
-            // $now = strtotime($date);
+            $date_expiry = strtotime($select_q->expiry);
+            $now = strtotime($date);
                     
-            // if ( $date_expiry < $now ) {
-            //     return array(
-            //         "status" => "failed",
-            //         "message" => "This url is already expired",
-            //     );
-            // }
+            if ( $date_expiry < $now ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This url is already expired",
+                );
+            }
 
             if ($select_q->type == 'registration') {
  
@@ -112,7 +112,7 @@
 
                 return array(
                     "status" => "success",
-                    "data" =>  wp_normalize_path(ABSPATH. '/') . 'wp-json/datavice/v1/user/signup'
+                    "data" =>  get_site_url().'/'.'wp-json/datavice/v1/user/signup'
                 );
             }
 
