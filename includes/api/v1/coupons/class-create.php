@@ -43,14 +43,14 @@
                 );
             }
 
-            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value']) || !isset($_POST['type']) ) {
+            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value']) || !isset($_POST['type']) || !isset($_POST['limit']) ) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown.",
                 );
             }
 
-            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) || empty($_POST['type']) ) {
+            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) || empty($_POST['type']) || !isset($_POST['limit']) ) {
                 return array(
                     "status" => "failed",
                     "message" => "Required fields cannot be empty.",
