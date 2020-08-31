@@ -11,11 +11,11 @@
 	*/
   	class RA_Validate_Urlhash {
 
-          public static function listen(){
+        public static function listen(){
             return rest_ensure_response( 
                 RA_Validate_Urlhash::validate_referral()
             );
-          }
+        }
     
         public static function validate_referral(){
            
@@ -115,11 +115,5 @@
                     "data" =>  get_site_url().'/'.'wp-json/datavice/v1/user/signup'
                 );
             }
-
-
-       
         }
-
-
-
     }

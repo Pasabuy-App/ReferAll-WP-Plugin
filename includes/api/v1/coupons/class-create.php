@@ -64,9 +64,6 @@
                 );
             }
 
-            
-
-
             if ( !isset($_POST['exp']) || empty($_POST['exp']) || $_POST['exp'] == "") {
           
                 $expiration_date = NULL;
@@ -83,7 +80,6 @@
                 }
 
                 $expiration_date = $_POST['exp'];
-                
             }
 
             $wpid = $_POST['wpid'];
@@ -158,6 +154,4 @@
             $d = DateTime::createFromFormat($format, $date);
             return $d && $d->format($format) == $date;
         }
-        
-
     }

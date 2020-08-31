@@ -11,11 +11,11 @@
 	*/
   	class RA_Validate_Coupon {
 
-          public static function listen(){
+        public static function listen(){
             return ( 
                 self::validate_coupon()
             );
-          }
+        }
     
         public static function validate_coupon(){
            

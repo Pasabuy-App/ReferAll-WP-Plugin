@@ -16,7 +16,6 @@
                 self::listen_open()
             );
         }
-    
         
         public static function  listen_open(){
             
@@ -60,9 +59,7 @@
             }
 
             $wpid = $_POST['wpid'];
-            
             $copid = $_POST['copid'];
-
             $revs_type = 'coupon';
 
             isset($_POST['type'])? $t1 = $_POST['type']: $t1 = NULL;
@@ -113,6 +110,7 @@
                     }
                 }
             }
+
             // Update limit of coupon
             if (isset($_POST['limit'])) {
                 if ($limit !== NULL) {
@@ -134,6 +132,7 @@
                     }
                 }
             }
+
             // Update expiry of coupon
             if (isset($_POST['expiry'])) {
                 if ($expiry !== NULL) {
@@ -179,7 +178,6 @@
                 "status" => "success",
                 "data" => "Coupon successfully created",
             );
-       
         }
 
         public static function validateDate($date, $format = 'Y-m-d h:i:s')

@@ -11,14 +11,14 @@
 	*/
   	class RA_Delete_Coupon {
 
-          public static function listen(){
+        public static function listen(){
             return rest_ensure_response( 
                 RA_Delete_Coupon::delete_coupon()
             );
-          }
+        }
     
         public static function delete_coupon(){
-           return 0;
+           
 			// Initialize WP global variable
             global $wpdb;
             $table_revision = RA_REVISIONS_TABLE;
@@ -106,10 +106,6 @@
             }
 
             return $coupon;
-            //Pending
-       
+          
         }
-
-
-
     }

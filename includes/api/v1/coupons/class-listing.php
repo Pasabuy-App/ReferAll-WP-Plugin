@@ -66,9 +66,8 @@
                 WHERE 
                     rev.child_key = 'status' 
                     AND revs_type ='coupon'
-                    AND rev.ID = (SELECT MAX(ID) FROM $table_revision WHERE parent_id = rev.parent_id AND revs_type = 'coupon'  )
+                    AND rev.ID = (SELECT MAX(ID) FROM $table_revision WHERE parent_id = rev.parent_id AND revs_type = 'coupon')
             ";
-
 
             isset($_POST['copid'])? $copid = $_POST['copid']: $copid = NULL;
             isset($_POST['type'])? $tp = $_POST['type']: $tp = NULL;

@@ -59,8 +59,8 @@
 
             if ( !($_POST['type'] === 'registration') ) {
                 return array(
-                            "status" => "failed",
-                            "message" => "Invalid value for  type.",
+                    "status" => "failed",
+                    "message" => "Invalid value for  type.",
                 );
             }
 
@@ -76,7 +76,6 @@
                             "message" => "Expiratation date is not in valid format.",
                     );
                 }
-
             } else {
 
                 $expiration_date = NULL;
@@ -150,16 +149,11 @@
                     "data" => $short_url,
                 );
             }
-
-       
         }
-
 
         public static function validateDate($date, $format = 'Y-m-d h:i:s')
         {
             $d = DateTime::createFromFormat($format, $date);
             return $d && $d->format($format) == $date;
         }
-        
-
     }

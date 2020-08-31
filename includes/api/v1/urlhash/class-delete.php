@@ -11,11 +11,11 @@
 	*/
   	class RA_Delete_Urlhash {
 
-          public static function listen(){
+        public static function listen(){
             return rest_ensure_response( 
                 RA_Delete_Urlhash::delete_urlhash()
             );
-          }
+        }
     
         public static function delete_urlhash(){
            
@@ -103,10 +103,5 @@
                 "status" => "success",
                 "message" => "Data has been deleted successfully.",
             );
-
-       
         }
-
-
-
     }
