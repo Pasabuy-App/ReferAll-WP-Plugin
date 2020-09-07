@@ -4,25 +4,25 @@
 		exit;
 	}
 
-	/** 
+	/**
         * @package referall-wp-plugin
 		* @version 0.1.0
 		* REST API for creating referrals.
 	*/
   	class RA_Coupon_Create {
-          public static function listen(){
-            return rest_ensure_response( 
+
+        public static function listen(){
+            return rest_ensure_response(
                 RA_Coupon_Create::create_coupon()
             );
-          }
-    
+        }
+
         public static function create_coupon(){
-            
+
 			// Initialize WP global variable
             global $wpdb;
             $table_revision = RA_REVISIONS_TABLE;
             $table_revision_fields= RA_REVISIONS_FIELDS;
-
             $table_coupons = RA_COUPONS_TABLE;
             $table_coupons_fields = RA_COUPONS_FIELDS;
 
@@ -36,7 +36,7 @@
             }
 
 			if (DV_Verification::is_verified() == false) {
-                
+
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues.",
@@ -65,12 +65,12 @@
             }
 
             if ( !isset($_POST['exp']) || empty($_POST['exp']) || $_POST['exp'] == "") {
-          
+
                 $expiration_date = NULL;
-                
+
             } else {
 
-                $dt = self::validateDate($_POST['exp']);   
+                $dt = self::validateDate($_POST['exp']);
 
                 if ( !$dt ) {
                     return array(
@@ -86,22 +86,23 @@
             $limit = $_POST['limit'];
             $type = $_POST['type'];
 
-            $rev_data = array('title' => trim($_POST['title']),
-                              'info'  => trim($_POST['info']),
-                              'value' => trim($_POST['value']),
-                              'status'=> 1
+            $rev_data = array(
+                'title' => trim($_POST['title']),
+                'info'  => trim($_POST['info']),
+                'value' => trim($_POST['value']),
+                'status'=> 1
             );
 
             $hash = '';
 
             $revs_type = 'coupon';
-        
+
             $wpdb->query("START TRANSACTION");
-           
+
             $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $type, $limit, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
-            
+
             //Get last insert id
             $parent_id = $wpdb->insert_id;
 
@@ -112,7 +113,7 @@
                 $wpdb->query("UPDATE `$table_coupons` SET `expiry` = '$expiration_date' WHERE `id` = $parent_id");
 
             }
-            
+
             $update_sql = $wpdb->prepare("UPDATE `$table_coupons` SET `hash_id`= SHA2( '$parent_id', 256) WHERE id = %d;", $parent_id);
 
             $update_q = $wpdb->get_row( $update_sql , OBJECT );
@@ -120,7 +121,7 @@
             foreach ($rev_data as $key => $value) {
 
                 $rev_sql = $wpdb->prepare("INSERT INTO `$table_revision` $table_revision_fields VALUES ('%s', %d, '%s', '%s', %d)", $revs_type, $parent_id, $key, $value, $wpid);
-            
+
                 $rev_result = $wpdb->get_row( $rev_sql , OBJECT );
 
                 if ($wpdb->insert_id < 1) {
@@ -131,7 +132,7 @@
                     );
                 }
             }
-            
+
             if ( $parent_id < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
@@ -146,8 +147,9 @@
                 "status" => "success",
                 "data" => "Coupon successfully created",
             );
-       
+
         }
+
 
         public static function validateDate($date, $format = 'Y-m-d h:i:s')
         {

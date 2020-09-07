@@ -10,7 +10,7 @@
      * Here is where you add hook to WP to create our custom database if not found.
 	*/
 	function ra_dbhook_activate() {
-	
+
 		global $wpdb;
 		$tbl_revisions = RA_REVISIONS_TABLE;
 		$tbl_urlhash = RA_URLHASH_TABLE;
@@ -19,6 +19,7 @@
 		$tbl_coupons = RA_COUPONS_TABLE;
 		$tbl_transaction = RA_TRANSACTION;
 
+
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_configs'" ) != $tbl_configs) {
 			$sql = "CREATE TABLE `".$tbl_configs."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
@@ -26,7 +27,7 @@
 				$sql .= "`title` varchar(255) NOT NULL, ";
 				$sql .= "`info` varchar(255) NOT NULL, ";
 				$sql .= "`config_key` varchar(50) NOT NULL,";
-				$sql .= "`config_val` varchar(50) NOT NULL DEFAULT 0, ";
+				$sql .= "`config_val` bigint(20) NOT NULL DEFAULT 0, ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; ";
 			$result = $wpdb->get_results($sql);
@@ -36,7 +37,7 @@
 			$conf_fields = RA_CONFIG_FIELD;
 
 			//Dumping data into tables
-			$wpdb->query("INSERT INTO `".$tbl_configs."` $conf_fields VALUES $conf_list");
+			$wpdb->query("INSERT INTO `".$tbl_configs."` ($conf_fields, hash_id) VALUES $conf_list");
 		}
 
 		//Table creation for revisions
@@ -44,7 +45,7 @@
 			$sql = "CREATE TABLE `".$tbl_revisions."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= " `hash_id` varchar(255) NOT NULL COMMENT 'hash id',  ";
-				$sql .= "`revs_type` enum('none','urlhash','coupon') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
+				$sql .= "`revs_type` enum('none','urlhash','coupon', 'configs') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";
 				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Parent id of this revision',  ";
 				$sql .= "`child_key` varchar(20) NOT NULL DEFAULT 0 COMMENT 'Column name on the table',  ";
 				$sql .= "`child_val` varchar(50) NOT NULL DEFAULT 0 COMMENT 'Value of the row key',  ";
@@ -53,6 +54,13 @@
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
+
+			//Pass the globally defined constant to a variable
+			$rev_list = RA_CONFIG_DATA_REV;
+			$rev_field = RA_REVISIONS_FIELDS;
+
+			//Dumping data into tables
+			$wpdb->query("INSERT INTO `".$tbl_revisions."` ($rev_field, hash_id) VALUES $rev_list");
 		}
 
 		//Table creation for urlhash
@@ -88,8 +96,9 @@
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= " `hash_id` varchar(255) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
 				$sql .= " `expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
-				$sql .= " `type` enum('none','free_ship','discount','min_spend','less') NOT NULL DEFAULT 'none' COMMENT 'Type of coupons',  ";
-				$sql .= "  `limit` mediumint(9) NOT NULL COMMENT 'Limit of couipons',  ";
+				$sql .= " `trigger` enum('none','signin','1st_transac','min_spend_1000','min_spend_500','min_spend_10000','min_spend_5000','min_spend_2500','cash_in') NOT NULL DEFAULT 'none',  ";
+				$sql .= " `action` enum('none','free_ship','discount','min_spend','less') NOT NULL DEFAULT 'none' COMMENT 'Type of coupons',  ";
+				$sql .= " `limit` mediumint(9) NOT NULL COMMENT 'Limit of couipons',  ";
 				$sql .= " `created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";
 				$sql .= "`date_created` datetime DEFAULT current_timestamp() COMMENT 'The date the urlhash is clicked.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
@@ -113,6 +122,7 @@
 		}
 
 
-	} 
-	
+
+	}
+
 	add_action( 'activated_plugin', 'ra_dbhook_activate' );

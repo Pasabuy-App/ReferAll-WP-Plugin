@@ -16,11 +16,12 @@
 	//Configs CONSTANT
 	define('RA_CONFIG_TABLE', RA_PREFIX.'configs');
 	define("RA_CONFIG_DATA", $ra_config_list);
-	define("RA_CONFIG_FIELD", "(title, info, config_key, config_val)");
+	define("RA_CONFIG_FIELD", "title, info, config_key, config_val");
 
 	//Revisions CONSTANT
 	define('RA_REVISIONS_TABLE', RA_PREFIX.'revisions');
-	define("RA_REVISIONS_FIELDS", "(revs_type, parent_id, child_key, child_val, created_by)");
+	define("RA_REVISIONS_FIELDS", "revs_type, parent_id, child_key, child_val, created_by");
+	define("RA_CONFIG_DATA_REV", $ra_config_list_revision);
 
 	//Referral CONSTANT
 	define('RA_URLHASH_TABLE', RA_PREFIX.'urlhash');
@@ -32,9 +33,9 @@
 
 	//Coupons CONSTANT
 	define('RA_COUPONS_TABLE', RA_PREFIX.'coupons');
-	define("RA_COUPONS_FIELDS", "(`hash_id`, `expiry`, `type`, `limit`, `created_by`)");
+	define("RA_COUPONS_FIELDS", "(`hash_id`, `expiry`, `action`, `limit`, `created_by`)");
 
-	define('RA_TRANSACTION', RA_PREFIX.'coupons');
+	define('RA_TRANSACTION', RA_PREFIX.'transaction');
 	define('RA_TRANSACTION_FILEDS', '( hash_id, coup_id, order_id, created_by, date_created )');
 
 
