@@ -43,14 +43,14 @@
                 );
             }
 
-            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value']) || !isset($_POST['type']) || !isset($_POST['limit']) ) {
+            if ( !isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['value']) || !isset($_POST['type']) || !isset($_POST['limit']) || !isset($_POST['trigger']) ) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown.",
                 );
             }
 
-            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) || empty($_POST['type']) || !isset($_POST['limit']) ) {
+            if ( empty($_POST['title']) || empty($_POST['info']) || empty($_POST['value']) || empty($_POST['type']) || empty($_POST['limit']) || empty($_POST['trigger'])  ) {
                 return array(
                     "status" => "failed",
                     "message" => "Required fields cannot be empty.",
@@ -58,6 +58,20 @@
             }
 
             if ($_POST['type'] !== 'free_ship' && $_POST['type'] !== 'discount' && $_POST['type'] !== 'min_spend' && $_POST['type'] !== 'less'  ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Invalid type of coupons.",
+                );
+            }
+
+            if ($_POST['trigger'] !== 'signin'
+            && $_POST['trigger'] !== '1st_transaction'
+            && $_POST['trigger'] !== 'min_spend_1000'
+            && $_POST['trigger'] !== 'min_spend_500'
+            && $_POST['trigger'] !== 'min_spend_10000'
+            && $_POST['trigger'] !== 'min_spend_5000'
+            && $_POST['trigger'] !== 'min_spend_2500'
+            && $_POST['trigger'] !== 'cash_in' ) {
                 return array(
                     "status" => "failed",
                     "message" => "Invalid type of coupons.",
@@ -85,6 +99,7 @@
             $wpid = $_POST['wpid'];
             $limit = $_POST['limit'];
             $type = $_POST['type'];
+            $trigger =$_POST['trigger'];
 
             $rev_data = array(
                 'title' => trim($_POST['title']),
@@ -99,7 +114,7 @@
 
             $wpdb->query("START TRANSACTION");
 
-            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $type, $limit, $wpid);
+            $insert_sql =  $wpdb->prepare("INSERT INTO `$table_coupons` $table_coupons_fields VALUES ('%s', '%s', '%s', '%s', %d, %d)", $hash, $expiration_date, $trigger, $type, $limit, $wpid);
 
             $insert_q = $wpdb->get_row( $insert_sql , OBJECT );
 

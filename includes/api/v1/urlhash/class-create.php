@@ -4,20 +4,20 @@
 		exit;
 	}
 
-	/** 
+	/**
         * @package referall-wp-plugin
 		* @version 0.1.0
 		* REST API for creating referrals.
 	*/
   	class RA_Urlhash_Create {
           public static function listen(){
-            return rest_ensure_response( 
+            return rest_ensure_response(
                 RA_Urlhash_Create::create_urlhash()
             );
           }
-    
+
         public static function create_urlhash(){
-            
+
 			// Initialize WP global variable
             global $wpdb;
             $table_revision = RA_REVISIONS_TABLE;
@@ -36,7 +36,7 @@
             }
 
 			if (DV_Verification::is_verified() == false) {
-                
+
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues.",
@@ -65,11 +65,11 @@
             }
 
             if ( isset($_POST['exp']) || !empty($_POST['exp']) ) {
-                
+
                 $expiration_date = $_POST['exp'];
 
-                $dt = TP_OrdersByDate::validateDate($_POST['exp']);   
-          
+                $dt = TP_OrdersByDate::validateDate($_POST['exp']);
+
                 if ( !$dt ) {
                     return array(
                             "status" => "failed",
@@ -82,14 +82,14 @@
 
             }
 
-            
+
 
             $wpid = $_POST['wpid'];
 
             $type = $_POST['type'];
 
             $hash = '';
-        
+
             $wpdb->query("START TRANSACTION");
 
             $revs_type = 'urlhash';
@@ -107,11 +107,11 @@
             } else {
                 $wpdb->query("UPDATE `$table_urlhash` SET `expiry` = '$expiration_date' WHERE `id` = $parent_id");
             }
-            
+
             $rev_sql = $wpdb->prepare("INSERT INTO `$table_revision` $table_revision_fields VALUES ('%s', %d, '%s', %d, %d)", $revs_type, $parent_id, 'status', 1, $wpid);
-            
+
             $rev_result = $wpdb->get_row( $rev_sql , OBJECT );
-           
+
             $update_sql = $wpdb->prepare("UPDATE `$table_urlhash` SET `hash`=concat(
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($parent_id)*4294967296))*36+1, 1),
                 substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
@@ -128,12 +128,12 @@
             $update_q = $wpdb->get_row( $update_sql , OBJECT );
 
             $hash_sql = $wpdb->prepare("SELECT `hash` FROM `$table_urlhash` WHERE `ID` = %d;", $parent_id);
-            
+
             $select_q = $wpdb->get_row( $hash_sql , OBJECT );
 
             // $short_url = wp_normalize_path(ABSPATH. '/') . $select_q->hash;
             $short_url = get_site_url().'/'. $select_q->hash;
-            
+
             if ( $parent_id < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(

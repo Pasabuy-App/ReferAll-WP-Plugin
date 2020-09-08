@@ -95,8 +95,9 @@
 			$sql = "CREATE TABLE `".$tbl_coupons."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= " `hash_id` varchar(255) NOT NULL DEFAULT 0 COMMENT 'Hash code of this coupon',  ";
+				$sql .= " `stid` bigint(20) NOT NULL COMMENT 'if zero it means created by admin if not creates by store',  ";
 				$sql .= " `expiry` datetime DEFAULT NULL COMMENT 'Expiration time and date of this referral',  ";
-				$sql .= " `trigger` enum('none','signin','1st_transac','min_spend_1000','min_spend_500','min_spend_10000','min_spend_5000','min_spend_2500','cash_in') NOT NULL DEFAULT 'none',  ";
+				$sql .= " `trigger` enum('none','signin','1st_transaction','min_spend_1000','min_spend_500','min_spend_10000','min_spend_5000','min_spend_2500','cash_in') NOT NULL DEFAULT 'none',  ";
 				$sql .= " `action` enum('none','free_ship','discount','min_spend','less') NOT NULL DEFAULT 'none' COMMENT 'Type of coupons',  ";
 				$sql .= " `limit` mediumint(9) NOT NULL COMMENT 'Limit of couipons',  ";
 				$sql .= " `created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this referral',  ";

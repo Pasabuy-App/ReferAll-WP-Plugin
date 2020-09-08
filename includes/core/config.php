@@ -33,7 +33,7 @@
 
 	//Coupons CONSTANT
 	define('RA_COUPONS_TABLE', RA_PREFIX.'coupons');
-	define("RA_COUPONS_FIELDS", "(`hash_id`, `expiry`, `action`, `limit`, `created_by`)");
+	define("RA_COUPONS_FIELDS", "(`hash_id`, `expiry`, `trigger`, `action`, `limit`, `created_by`)");
 
 	define('RA_TRANSACTION', RA_PREFIX.'transaction');
 	define('RA_TRANSACTION_FILEDS', '( hash_id, coup_id, order_id, created_by, date_created )');
